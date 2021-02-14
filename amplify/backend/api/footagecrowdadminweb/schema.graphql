@@ -1,0 +1,96 @@
+enum AspectRatio {
+  FOURTOTHREE
+  SIXTEENTONINE
+}
+
+enum UsageType {
+  EDITORIAL
+  CREATIVE
+  PUBLICDOMAIN
+  RIGHTSREADY
+}
+
+type Shot @model @auth(rules: [{allow: private}]) @key(name: "byReel", fields: ["reelID"]) {
+  id: ID!
+  reelID: ID!
+  Title: String!
+  Description: String!
+  DateCreated: AWSDate
+  City: String
+  State: String
+  Country: String
+  Keywords: [String]
+  Color: Boolean!
+  UsageTypes: [UsageType]
+  AspectRatio: AspectRatio
+  Notes: String
+  GPS: String
+}
+
+enum Format {
+  EIGHTMM
+  SUPEREIGHT
+  SIXTEENMM
+  PATHE
+  THIRTYFIVEMM
+  OTHER
+}
+
+type Reel @model @auth(rules: [{allow: private}]) @key(name: "byCollection", fields: ["collectionID"]) {
+  id: ID!
+  collectionID: ID!
+  Format: Format!
+  Titl: String!
+  ShootLocation: String
+  ShootDate: AWSDate
+  ScanningFileNumber: String
+  BackupDriveName: String
+  ReelNotes: String
+  MediaUrl: AWSURL
+  Shots: [Shot] @connection(keyName: "byReel", fields: ["id"])
+}
+
+enum RelationshipToCopyrightHolder {
+  PRIMARYCONTACT
+  CHILD
+  RELATIVE
+  FRIEND
+  NORELATION
+  SELF
+}
+
+type Person @model @auth(rules: [{allow: private}]) @key(name: "byCollection", fields: ["collectionID"]) {
+  id: ID!
+  collectionID: ID!
+  RelationshipToCopyrightHolder: RelationshipToCopyrightHolder
+  LastName: String!
+  FirstName: String!
+  Address: String!
+  City: String!
+  State: String!
+  ZipCode: String!
+  Country: String!
+  Phone: AWSPhone!
+  ContactEmai: AWSEmail!
+  PaypalEmail: AWSEmail
+  Notes: String
+  ModelReleaseUrl: AWSURL
+  ImageUrl: AWSURL
+}
+
+enum CopyrightHolderStatus {
+  ALIVE
+  DECEASED
+}
+
+type Collection @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  Name: String!
+  CopyrightHolder: String!
+  CopyrightHolderStatus: CopyrightHolderStatus!
+  LicensingAgentOrContact: String
+  LicensingAgreementUrl: AWSURL
+  AdditionalNotes: String
+  Signatories: [Person] @connection(keyName: "byCollection", fields: ["id"])
+  Reels: [Reel] @connection(keyName: "byCollection", fields: ["id"])
+}
